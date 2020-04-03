@@ -1,0 +1,17 @@
+<?php
+/* @var $block \Sga\Merchandiser\Block\Adminhtml\Merchandiser\Products */
+$products = $block->getProducts();
+$block->addSalesInfos($products);
+$block->addChildStockInfos($products);
+?>
+<?php foreach ($products as $product) : ?>
+    <li data-id="<?php echo $product->getId() ?>">
+        <?php
+        echo $block->getLayout()->createBlock('\Sga\Merchandiser\Block\Adminhtml\Merchandiser\Products\Item')
+            ->setTemplate($block->getTemplateItem())
+            ->setProduct($product)
+            ->toHtml()
+        ?>
+    </li>
+<?php endforeach ?>
+

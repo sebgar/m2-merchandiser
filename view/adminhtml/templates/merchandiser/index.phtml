@@ -1,0 +1,155 @@
+<?php
+/* @var $block \Sga\Merchandiser\Block\Adminhtml\Merchandiser */
+$categories = $block->getCategories();
+$autoSorts = $block->getAutoSorts();
+$categoryId = (int)$block->getRequest()->getParam('category');
+$storeId = (int)$block->getRequest()->getParam('store');
+$configHelper = $block->getConfigHelper();
+
+$config = [
+    'max_products' => $block->getMaxProducts(),
+    'urls' => [
+        'productsLoad' => $block->getUrlBuilder()->getUrl('merchandiser/index/loadProducts'),
+        'savePositions' => $block->getUrlBuilder()->getUrl('merchandiser/index/savePositions'),
+        'checkOverload' => $block->getUrlBuilder()->getUrl('merchandiser/index/checkOverload'),
+        'removeOverload' => $block->getUrlBuilder()->getUrl('merchandiser/index/removeOverload'),
+        'removeProductCategory' => $block->getUrlBuilder()->getUrl('merchandiser/index/removeProductCategory'),
+        'addProductsCategory' => $block->getUrlBuilder()->getUrl('merchandiser/index/addProductsCategory'),
+        'autoSortProducts' => $block->getUrlBuilder()->getUrl('merchandiser/index/autoSortProducts'),
+        'applyToGlobal' => $block->getUrlBuilder()->getUrl('merchandiser/index/applyToGlobal'),
+    ],
+    'elements' => [
+        'store_switcher' => '#stores',
+        'category_switcher' => '#categories',
+        'count' => '#count',
+        'elements' => '#elements',
+        'products' => '#products',
+        'container_items' => '#products li',
+        'actions' => 'div.actions',
+        'btn_remove_overload' => '#btn-remove-overload',
+        'btn_save' => '#btn-save',
+        'btn_reload' => '#btn-reload',
+        "btn_apply_to_global" => '#btn-apply-to-global',
+        "btn_put_to_top" => '#btn-put-to-top',
+        "btn_add_skus" => '#btn-add-skus',
+        "btn_auto_sort" => '#btn-auto-sort',
+        'input_add_skus' => '#skus_add',
+        'input_auto_sort' => '#auto_sort',
+        'btns_delete' => '#products .remove',
+        'nb_columns' => "#nb_columns"
+    ],
+    'translate' => [
+        'needSave' => __('Save is needed, do you want to canceled change ?'),
+        'addSkusEmpty' => __('No skus found in field !'),
+        'removeProductCategory' => __('Do you want to remove this product from this category ?'),
+        'reloadProducts' => __('Do you really want to reload products ?<br><strong>ATTENTION : all changes not saved are lost !</strong>'),
+        'removeOverload' => __('Do you really want to remove this overload ?<br><strong>ATTENTION : go back is not possible !</strong>'),
+        'autoSortProducts' => __('Do you really want to apply this sort ?<br><strong>ATTENTION : go back is not possible !</strong>'),
+        'applyToGlobal' => __('Do you really want to apply this merch on global ?<br><strong>ATTENTION : go back is not possible !</strong>')
+    ]
+];
+?>
+
+<p class="switcher">
+    <label for="stores"><?= __('Store View') ?> :</label>
+    <select name="stores" id="stores" class="select admin__control-select">
+        <option value=""><?= __('All Store Views') ?></option>
+        <?php $websites = $this->getStoreManager()->getWebsites() ?>
+        <?php foreach ($websites as $website) : ?>
+            <?php $showWebsite = false; ?>
+            <?php foreach ($website->getGroups() as $group): ?>
+                <?php $showGroup = false; ?>
+                <?php foreach ($group->getStores() as $store): ?>
+                    <?php if ($showWebsite == false): ?>
+                        <?php $showWebsite = true; ?>
+                        <optgroup label="<?= $block->escapeHtml($website->getName()) ?>"></optgroup>
+                    <?php endif ?>
+                    <?php if ($showGroup == false): ?>
+                        <?php $showGroup = true; ?>
+                        <optgroup label="&nbsp;&nbsp;&nbsp;<?= $block->escapeHtml($group->getName()) ?>">
+                    <?php endif ?>
+                    <?php $selected = $store->getId() == $storeId ? 'selected="selected"' : '' ?>
+                    <option value="<?= $store->getId() ?>"<?= $selected ?>>&nbsp;&nbsp;&nbsp;&nbsp;<?php echo $block->escapeHtml($store->getName()) ?></option>
+                <?php endforeach ?>
+                <?php if ($showGroup): ?>
+                    </optgroup>
+                <?php endif ?>
+            <?php endforeach ?>
+        <?php endforeach ?>
+    </select>
+</p>
+
+<p class="switcher">
+    <label for="categories"><?= __('Category') ?> :</label>
+    <select name="categories" id="categories" class="select admin__control-select">
+        <option value=""><?= __('-- Choose category --') ?></option>
+        <?php foreach ($categories as $catId => $categoryName) : ?>
+            <?php $selected = $categoryId === $catId ? 'selected="selected"' : '' ?>
+            <option value="<?= $catId ?>" <?= $selected ?>><?= $categoryName ?></option>
+        <?php endforeach ?>
+    </select>
+</p>
+
+<div id="merchandiser">
+    <?php
+    $state = [];
+    $state[] = __('Stock = %1', ($configHelper->isDisplayOutOfStock() ? __('All')->getText() : __('Only In Stock')->getText()))->render();
+    $state[] = __('Status = %1', ($configHelper->isDisplayDisabled() ? __('All')->getText() : __('Only Actif')->getText()))->render();
+    $state[] = __('Visibility = %1', ($configHelper->isDisplayNotVisible() ? __('All')->getText() : __('Only Visible')->getText()))->render();
+    ?>
+    <div class="state"><?= __('Display product : %1', implode(', ', $state)) ?></div>
+
+    <div class="actions" style="display:none">
+        <ul>
+            <li>
+                <button id="btn-reload" class="save button"><span><span><?= __('Reload Products') ?></span></span></button>
+            </li>
+            <li>
+                <input type="text" name="skus_add" id="skus_add" value="" placeholder="sku1,sku2,...,skuX" maxlength="255" class="input-text admin__control-text" />
+                <button id="btn-add-skus" class="save button"><span><span><?= __('Add Product / On Head') ?></span></span></button>
+            </li>
+            <?php if (count($autoSorts) > 0) : ?>
+                <li>
+                    <select name="auto_sort" id="auto_sort" class="select admin__control-select">
+                        <?php foreach ($autoSorts as $autoSortKey => $autoSortLabel) : ?>
+                            <option value="<?= $autoSortKey ?>"><?= __($autoSortLabel) ?></option>
+                        <?php endforeach ?>
+                    </select>
+                    <button id="btn-auto-sort" class="save button""><span><span><?= __('Apply Sort') ?></span></span></button>
+                </li>
+            <?php endif ?>
+            <li>
+                <button id="btn-put-to-top" class="save button"><span><span><?= __('Put To Top') ?></span></span></button>
+            </li>
+            <li><button id="btn-save" class="save button disabled"><span><span><?= __('Save Change') ?></span></span></button></li>
+            <?php if ($storeId > 0) : ?>
+                <li>
+                    <button id="btn-remove-overload" class="delete button disabled"><span><span><?= __('Remove Overload') ?></span></span></button>
+                </li>
+                <li>
+                    <button id="btn-apply-to-global" class="save button"><span><span><?= __('Apply to Global') ?></span></span></button>
+                </li>
+            <?php endif ?>
+        </ul>
+    </div>
+
+    <div id="elements" style="display:none">
+        <div id="count"><span></span> <?= __('product(s)') ?></div>
+        <div id="columns">
+            <?= __('Number of columns') ?>
+            <select id="nb_columns">
+                <?php $nbColumns = $block->getListNbColumns() ?>
+                <?php $nbColumnDefault = $configHelper->getNbColumnDefault() ?>
+                <?php foreach ($nbColumns as $k => $v) : ?>
+                    <?php $selected = $k == $nbColumnDefault ? 'selected="selected"' : '' ?>
+                    <option value="<?= $k ?>" <?= $selected ?>><?= $v ?></option>
+                <?php endforeach ?>
+            </select>
+        </div>
+        <ul id="products"></ul>
+    </div>
+</div>
+
+<script type="text/x-magento-init">
+{"#merchandiser": {"Sga_Merchandiser/js/merchandiser": <?= $block->getJsonSerializer()->serialize($config) ?>}}
+</script>

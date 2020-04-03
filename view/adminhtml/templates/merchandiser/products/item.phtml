@@ -1,0 +1,79 @@
+<?php
+/* @var $block \Sga\Merchandiser\Block\Adminhtml\Merchandiser\Products\Item */
+$product = $block->getProduct();
+$config = $block->getHelperConfig();
+$currencyManager = $block->getCurrencyManager();
+$mediaUrl = $this->getStoreManager()->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA).'catalog'.DIRECTORY_SEPARATOR.'product';
+
+// process price
+if ($product->getData('final_price') !== null && $product->getData('final_price') != $product->getPrice()) {
+    $priceHtml = $currencyManager->format($product->getData('final_price'), false).' <span class="regular">'.$currencyManager->format($product->getData('price'), false).'<span>';
+} else {
+    $priceHtml = $currencyManager->format($product->getData('price'), false);
+}
+
+// process stock
+$stockHtml = '';
+if ((int)$product->getNbTotalStock() > 0) {
+    $thresholdsOutOfStock = $config->getThresholdsColorOutOfStock();
+    $percentOutOfStock = 100 - (((int)$product->getNbOutOfStock() * 100) / (int)$product->getNbTotalStock());
+    $cssOutOfStock = 'color:'.$thresholdsOutOfStock['default'];
+    $oldThreshold = 0;
+    foreach ($thresholdsOutOfStock['list'] as $thresholdOutOfStock) {
+        if ($percentOutOfStock >= $oldThreshold && $percentOutOfStock <= $thresholdOutOfStock['threshold']) {
+            $cssOutOfStock = 'color:'.$thresholdOutOfStock['color'];
+            break;
+        }
+        $oldThreshold = $thresholdOutOfStock['threshold'];
+    }
+
+    $stockHtml = '<span title="'.__('%1 out of stock on %2', (int)$product->getNbOutOfStock(), (int)$product->getNbTotalStock()).'" style="'.$cssOutOfStock.'">'.(int)$product->getNbOutOfStock().'/<strong>'.(int)$product->getNbTotalStock().'</strong></span>';
+}
+
+$isEnabled = in_array($product->getStatus(), $block->getProductStatus()->getVisibleStatusIds());
+$isVisible = in_array($product->getVisibility(), $block->getProductVisibility()->getVisibleInCatalogIds());
+
+// process qty
+if ($product->getTypeId() == \Magento\ConfigurableProduct\Model\Product\Type\Configurable::TYPE_CODE) {
+    $qty = round($product->getChildQuantity(), 2);
+} else {
+    $qty = round($product->getQuantity(), 2);
+}
+$thresholdsQty = $config->getThresholdsColorQty();
+$cssQty = 'color:'.$thresholdsQty['default'];
+$oldThreshold = 0;
+foreach ($thresholdsQty['list'] as $thresholdQty) {
+    if ($qty >= $oldThreshold && $qty <= $thresholdQty['threshold']) {
+        $cssQty = 'color:'.$thresholdQty['color'];
+        break;
+    }
+    $oldThreshold = $thresholdQty['threshold'];
+}
+$qtyHtml = '<span style="'.$cssQty.'">'.$qty.'</span>';
+?>
+<div class="product-container">
+    <div class="product-top">
+        <div class="name"><?= $product->getName() ?></div>
+        <div class="remove" data-id="<?= $product->getId() ?>">×</div>
+    </div>
+    <div class="product-middle">
+        <div class="flag">
+            <span class="status <?= $isEnabled ? 'enabled' : 'disabled' ?>" title="<?= $isEnabled ? __('Status = Enabled') : __('Status = Disabled') ?>">&nbsp;</span>
+            <span class="visibility <?= $isVisible ? 'visible' : 'not-visible' ?>" title="<?= $isVisible ? __('Visibility = Visible') : __('Visibility = Not Visible') ?>">&nbsp;</span>
+        </div>
+        <div class="a-center product-image">
+            <?php if ($product->getThumbnail() != '' && $product->getThumbnail() != 'no_selection') : ?>
+                <img src="<?= $mediaUrl.$product->getThumbnail() ?>" alt="<?= $product->getName() ?> (<?= $product->getSku() ?>)">
+            <?php else : ?>
+                <?= __('No thumbnail image') ?>
+            <?php endif ?>
+        </div>
+    </div>
+    <div class="product-bottom">
+        <div class="sku"><?= $product->getSku() ?></div>
+        <div class="price"><?= $priceHtml ?></div>
+        <div class="sales"><?= __('Sales:').' '.round($product->getNbSales()) ?></div>
+        <div class="stock"><?= $stockHtml ?></div>
+        <div class="qty"><?= __('Qty:').' '.$qtyHtml ?></div>
+    </div>
+</div>

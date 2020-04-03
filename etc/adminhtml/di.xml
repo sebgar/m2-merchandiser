@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\Catalog\Model\Indexer\Category\Product\Action\Full">
+        <plugin name="sga_merchandiser_reindex" type="Sga\Merchandiser\Plugin\Model\Indexer\Category\Product\Execute" />
+    </type>
+    <type name="Magento\Catalog\Model\Category">
+        <plugin name="sga_merchandiser_reindex" type="Sga\Merchandiser\Plugin\Model\Category" />
+    </type>
+</config>

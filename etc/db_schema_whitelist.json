@@ -1,0 +1,18 @@
+{
+    "sga_merchandiser_position": {
+        "column": {
+            "id": true,
+            "store_id": true,
+            "category_id": true,
+            "product_id": true,
+            "position": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "FK_SGA_MERCHANDISER_POSITION_STORE_ID_CORE_STORE_STORE_ID": true,
+            "FK_SGA_MERCHANDISER_POSITION_CAT_ID_CATALOG_CAT_ID": true,
+            "FK_SGA_MERCHANDISER_POSITION_PRD_ID_CATALOG_PRD_ID": true,
+            "UNQ_SGA_MERCHANDISER_POSITION_STORE_ID_CATEGORY_ID_PRODUCT_ID": true
+        }
+    }
+}

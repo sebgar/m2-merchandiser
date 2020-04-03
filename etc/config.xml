@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <merchandiser>
+            <general>
+                <nb_column_default>4</nb_column_default>
+            </general>
+            <products_filters>
+                <out_of_stock>0</out_of_stock>
+                <disabled>0</disabled>
+                <not_visible>0</not_visible>
+            </products_filters>
+            <threshold_color>
+                <qty>5,red|10,orange|green</qty>
+                <out_of_stock>30,red|80,orange|green</out_of_stock>
+            </threshold_color>
+            <attributes>
+                <name />
+            </attributes>
+            <autosort>
+                <standard>
+                    <label>Standard</label>
+                    <model>\Sga\Merchandiser\Model\Autosort\Standard</model>
+                </standard>
+                <best-sales>
+                    <label>Best Sales</label>
+                    <model>\Sga\Merchandiser\Model\Autosort\BestSales</model>
+                </best-sales>
+                <top-stock>
+                    <label>Top Stock</label>
+                    <model>\Sga\Merchandiser\Model\Autosort\TopStock</model>
+                </top-stock>
+                <low-stock>
+                    <label>Low Stock</label>
+                    <model>\Sga\Merchandiser\Model\Autosort\LowStock</model>
+                </low-stock>
+                <discount-first>
+                    <label>Discount First</label>
+                    <model>\Sga\Merchandiser\Model\Autosort\DiscountFirst</model>
+                </discount-first>
+                <subcategories>
+                    <label>By sub categories</label>
+                    <model>\Sga\Merchandiser\Model\Autosort\SubCategories</model>
+                </subcategories>
+            </autosort>
+        </merchandiser>
+    </default>
+</config>

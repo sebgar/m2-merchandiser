@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<layout xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/layout_generic.xsd">
+    <container name="root" >
+        <block class="Sga\Merchandiser\Block\Adminhtml\Merchandiser\Products" name="merchandiser.products" template="Sga_Merchandiser::merchandiser/products.phtml">
+            <arguments>
+                <argument name="template_item" xsi:type="string">Sga_Merchandiser::merchandiser/products/item.phtml</argument>
+            </arguments>
+        </block>
+    </container>
+</layout>

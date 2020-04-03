@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="merchandiser" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="0" showInStore="0">
+            <class>separator-top</class>
+            <label>Merchandiser</label>
+            <tab>catalog</tab>
+            <resource>Sga_Merchandiser::config_merchandiser</resource>
+            <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>General</label>
+                <field id="nb_column_default" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0" canRestore="1">
+                    <label>Nb Column Default</label>
+                    <source_model>Sga\Merchandiser\Model\System\Config\Source\Nbcolumns</source_model>
+                </field>
+            </group>
+            <group id="products_filters" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Products Filters</label>
+                <field id="out_of_stock" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0" canRestore="1">
+                    <label>Display Out of Stock</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="disabled" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0" canRestore="1">
+                    <label>Display Disabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="not_visible" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0" canRestore="1">
+                    <label>Display Not Visible</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+            </group>
+            <group id="threshold_color" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Threshold Color</label>
+                <field id="qty" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0" canRestore="1">
+                    <label>Display Out of Stock</label>
+                    <comment><![CDATA[format : X,red|Y,orange|green. from 0 to X : color is red, from X to Y : color is orange, from Y to infini : color is green]]></comment>
+                </field>
+                <field id="out_of_stock" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0" canRestore="1">
+                    <label>Display Disabled</label>
+                    <comment><![CDATA[format : X,red|Y,orange|green. from 0 to X% : color is red, from X% to Y% : color is orange, from Y% to 100% : color is green]]></comment>
+                </field>
+            </group>
+            <group id="sales" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Sales Info</label>
+                <field id="statuses" translate="label" type="multiselect" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0" canRestore="1">
+                    <label>Statuses</label>
+                    <comment><![CDATA[Nb sales is calculated on order where statuses is in selected list]]></comment>
+                    <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

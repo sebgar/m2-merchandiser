@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="sga_merchandiser_position" resource="default" engine="innodb" comment="Merchandiser Position">
+        <column xsi:type="int" name="id" padding="10" unsigned="true" nullable="false" identity="true" comment="Id"/>
+        <column xsi:type="smallint" name="store_id" padding="5" unsigned="true" nullable="false" identity="false" comment="Store Id"/>
+        <column xsi:type="int" name="category_id" padding="10" unsigned="true" nullable="false" identity="false" default="0" comment="Category ID"/>
+        <column xsi:type="int" name="product_id" padding="10" unsigned="true" nullable="false" identity="false" default="0" comment="Product ID"/>
+        <column xsi:type="int" name="position" padding="11" unsigned="false" nullable="false" identity="false" default="0" comment="Position"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="FK_SGA_MERCHANDISER_POSITION_STORE_ID_STORE_STORE_ID"
+             table="sga_merchandiser_position" column="store_id" referenceTable="store"
+             referenceColumn="store_id" onDelete="CASCADE"/>
+        <constraint xsi:type="foreign" referenceId="FK_SGA_MERCHANDISER_POSITION_CAT_ID_CATALOG_CAT_ID"
+            table="sga_merchandiser_position" column="category_id" referenceTable="catalog_category_entity"
+            referenceColumn="entity_id" onDelete="CASCADE"/>
+        <constraint xsi:type="foreign" referenceId="FK_SGA_MERCHANDISER_POSITION_PRD_ID_CATALOG_PRD_ID"
+            table="sga_merchandiser_position" column="product_id" referenceTable="catalog_product_entity"
+            referenceColumn="entity_id" onDelete="CASCADE"/>
+        <constraint xsi:type="unique" referenceId="UNQ_SGA_MERCHANDISER_POSITION_STORE_ID_CATEGORY_ID_PRODUCT_ID">
+            <column name="store_id"/>
+            <column name="category_id"/>
+            <column name="product_id"/>
+        </constraint>
+    </table>
+</schema>
