@@ -1,7 +1,7 @@
 <?php
 namespace Sga\Merchandiser\Model\ResourceModel\Position;
 
-use Sga\Merchandiser\Model\ResourceModel\AbstractCollection;
+use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;
 use Sga\Merchandiser\Model\Position as Model;
 use Sga\Merchandiser\Model\ResourceModel\Position as ResourceModel;
 

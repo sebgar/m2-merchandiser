@@ -2,8 +2,9 @@ define([
     'jquery',
     'jquery/ui',
     'Magento_Ui/js/modal/confirm',
-    "Magento_Ui/js/modal/alert"
-], function ($, jqueryUi, modalConfirm, modalAlert) {
+    "Magento_Ui/js/modal/alert",
+    "loader",
+], function ($, jqueryUi, modalConfirm, modalAlert, loader) {
     'use strict';
 
     $.widget('mage.merchandiser', {
@@ -153,6 +154,7 @@ define([
                     this.inLoad = true;
                     this.currentPage++;
 
+                    $('body').loader('show');
                     $.ajax({
                         url: this.options.urls.productsLoad,
                         method: "POST",
@@ -162,97 +164,99 @@ define([
                             p: this.currentPage
                         }
                     })
-                        .fail(function(response) {
-                            this.inLoad = false;
-                        }.bind(this))
-                        .done(function(response) {
-                            if (response.error) {
-                                modalAlert({
-                                    title: 'Error',
-                                    content: response.error,
-                                    actions: {
-                                        always: function(){}
-                                    }
-                                });
-                            }  else {
-                                if (this.currentPage * this.options.max_products >= response.total) {
-                                    this.allLoaded = true;
+                    .fail(function(response) {
+                        this.inLoad = false;
+                    }.bind(this))
+                    .done(function(response) {
+                        $('body').loader('hide');
+
+                        if (response.error) {
+                            modalAlert({
+                                title: 'Error',
+                                content: response.error,
+                                actions: {
+                                    always: function(){}
                                 }
-
-                                // update total
-                                $(this.options.elements.count).find('span').html(response.total);
-
-                                // update container
-                                var container = $(this.options.elements.products);
-                                container.html(container.html()+response.html);
-
-                                // show elements
-                                $(this.options.elements.elements).show();
-
-                                // show actions
-                                $(this.options.elements.actions).show();
-                                if (this.saveOffsetActions === 0) {
-                                    this.saveOffsetActions = $('.actions').offset()['top'];
-                                }
-
-                                // disabled btn save
-                                if (this.needSave) {
-                                    $(this.options.elements.btn_save).addClass('disabled');
-                                }
-
-                                container.off('click', '.product-middle').on('click', '.product-middle', function () {
-                                    $(this).parents('li').toggleClass('selected');
-                                });
-
-                                // make list sortable
-                                container.sortable({
-                                    delay: 150,
-                                    cancel: ".product-top, .product-bottom",
-                                    update: function(event, ui) {
-                                        this.flagNeedSave(true);
-                                    }.bind(this),
-                                    helper: function (e, item) {
-                                        //Basically, if you grab an unhighlighted item to drag, it will deselect (unhighlight) everything else
-                                        if (!item.hasClass('selected')) {
-                                            item.addClass('selected').siblings().removeClass('selected');
-                                        }
-
-                                        //////////////////////////////////////////////////////////////////////
-                                        //HERE'S HOW TO PASS THE SELECTED ITEMS TO THE `stop()` FUNCTION:
-
-                                        //Clone the selected items into an array
-                                        var elements = item.parent().children('.selected').clone();
-
-                                        //Add a property to `item` called 'multidrag` that contains the
-                                        //  selected items, then remove the selected items from the source list
-                                        item.data('multidrag', elements).siblings('.selected').remove();
-
-                                        //Now the selected items exist in memory, attached to the `item`,
-                                        //  so we can access them later when we get to the `stop()` callback
-
-                                        //Create the helper
-                                        var helper = $('<li/>');
-                                        return helper.append(elements);
-                                    },
-                                    stop: function (e, ui) {
-                                        //Now we access those items that we stored in `item`s data!
-                                        var elements = ui.item.data('multidrag');
-
-                                        //`elements` now contains the originally selected items from the source list (the dragged items)!!
-
-                                        //Finally I insert the selected items after the `item`, then remove the `item`, since
-                                        //  item is a duplicate of one of the selected items.
-                                        ui.item.after(elements).remove();
-
-                                        this.bindEventsProduct();
-                                    }.bind(this)
-                                });
-
-                                this.bindEventsProduct();
+                            });
+                        }  else {
+                            if (this.currentPage * this.options.max_products >= response.total) {
+                                this.allLoaded = true;
                             }
 
-                            this.inLoad = false;
-                        }.bind(this));
+                            // update total
+                            $(this.options.elements.count).find('span').html(response.total);
+
+                            // update container
+                            var container = $(this.options.elements.products);
+                            container.html(container.html()+response.html);
+
+                            // show elements
+                            $(this.options.elements.elements).show();
+
+                            // show actions
+                            $(this.options.elements.actions).show();
+                            if (this.saveOffsetActions === 0) {
+                                this.saveOffsetActions = $('.actions').offset()['top'];
+                            }
+
+                            // disabled btn save
+                            if (this.needSave) {
+                                $(this.options.elements.btn_save).addClass('disabled');
+                            }
+
+                            container.off('click', '.product-middle').on('click', '.product-middle', function () {
+                                $(this).parents('li').toggleClass('selected');
+                            });
+
+                            // make list sortable
+                            container.sortable({
+                                delay: 150,
+                                cancel: ".product-top, .product-bottom",
+                                update: function(event, ui) {
+                                    this.flagNeedSave(true);
+                                }.bind(this),
+                                helper: function (e, item) {
+                                    //Basically, if you grab an unhighlighted item to drag, it will deselect (unhighlight) everything else
+                                    if (!item.hasClass('selected')) {
+                                        item.addClass('selected').siblings().removeClass('selected');
+                                    }
+
+                                    //////////////////////////////////////////////////////////////////////
+                                    //HERE'S HOW TO PASS THE SELECTED ITEMS TO THE `stop()` FUNCTION:
+
+                                    //Clone the selected items into an array
+                                    var elements = item.parent().children('.selected').clone();
+
+                                    //Add a property to `item` called 'multidrag` that contains the
+                                    //  selected items, then remove the selected items from the source list
+                                    item.data('multidrag', elements).siblings('.selected').remove();
+
+                                    //Now the selected items exist in memory, attached to the `item`,
+                                    //  so we can access them later when we get to the `stop()` callback
+
+                                    //Create the helper
+                                    var helper = $('<li/>');
+                                    return helper.append(elements);
+                                },
+                                stop: function (e, ui) {
+                                    //Now we access those items that we stored in `item`s data!
+                                    var elements = ui.item.data('multidrag');
+
+                                    //`elements` now contains the originally selected items from the source list (the dragged items)!!
+
+                                    //Finally I insert the selected items after the `item`, then remove the `item`, since
+                                    //  item is a duplicate of one of the selected items.
+                                    ui.item.after(elements).remove();
+
+                                    this.bindEventsProduct();
+                                }.bind(this)
+                            });
+
+                            this.bindEventsProduct();
+                        }
+
+                        this.inLoad = false;
+                    }.bind(this));
                 }
             }
         },
@@ -285,6 +289,8 @@ define([
                     positions.push($(this).data('id'));
                 });
 
+                $('body').loader('show');
+
                 $.ajax({
                     url: this.options.urls.savePositions,
                     method: "POST",
@@ -295,6 +301,8 @@ define([
                     }
                 })
                 .done(function(response) {
+                    $('body').loader('hide');
+
                     if (response.message) {
                         this.flagNeedSave(false);
                         this.checkOverload();
@@ -314,6 +322,8 @@ define([
         checkOverload: function()
         {
             if ($(this.options.elements.store_switcher).val() !== '') {
+                $('body').loader('show');
+
                 $.ajax({
                     url: this.options.urls.checkOverload,
                     method: "POST",
@@ -323,6 +333,8 @@ define([
                     }
                 })
                 .done(function(response) {
+                    $('body').loader('hide');
+
                     if (response.message) {
                         modalAlert({
                             title: 'Error',
@@ -352,6 +364,8 @@ define([
                     content: $.mage.__(this.options.translate.removeOverload),
                     actions: {
                         confirm: function () {
+                            $('body').loader('show');
+
                             $.ajax({
                                 url: this.options.urls.removeOverload,
                                 method: "POST",
@@ -361,6 +375,8 @@ define([
                                 }
                             })
                             .done(function(response) {
+                                $('body').loader('hide');
+
                                 if (response.message) {
                                     modalAlert({
                                         title: 'Error',
@@ -402,6 +418,8 @@ define([
                     content: $.mage.__(this.options.translate.applyToGlobal),
                     actions: {
                         confirm: function () {
+                            $('body').loader('show');
+
                             $.ajax({
                                 url: this.options.urls.applyToGlobal,
                                 method: "POST",
@@ -411,6 +429,8 @@ define([
                                 }
                             })
                             .done(function(response) {
+                                $('body').loader('hide');
+
                                 if (response.message) {
                                     modalAlert({
                                         title: '',
@@ -430,6 +450,8 @@ define([
         addProductsCategory: function()
         {
             if ($(this.options.elements.input_add_skus).val() !== '') {
+                $('body').loader('show');
+
                 $.ajax({
                     url: this.options.urls.addProductsCategory,
                     method: "POST",
@@ -439,6 +461,8 @@ define([
                     }
                 })
                 .done(function(response) {
+                    $('body').loader('hide');
+
                     if (response.message) {
                         modalAlert({
                             title: 'Error',
@@ -469,6 +493,8 @@ define([
                 content: $.mage.__(this.options.translate.removeProductCategory),
                 actions: {
                     confirm: function () {
+                        $('body').loader('show');
+
                         $.ajax({
                             url: this.options.urls.removeProductCategory,
                             method: "POST",
@@ -478,6 +504,8 @@ define([
                             }
                         })
                         .done(function(response) {
+                            $('body').loader('hide');
+
                             if (response.message) {
                                 modalAlert({
                                     title: 'Error',
@@ -503,6 +531,8 @@ define([
                 content: $.mage.__(this.options.translate.autoSortProducts),
                 actions: {
                     confirm: function () {
+                        $('body').loader('show');
+
                         $.ajax({
                             url: this.options.urls.autoSortProducts,
                             method: "POST",
@@ -513,6 +543,8 @@ define([
                             }
                         })
                         .done(function(response) {
+                            $('body').loader('hide');
+
                             if (response.message) {
                                 modalAlert({
                                     title: '',

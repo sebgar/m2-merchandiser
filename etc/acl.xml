@@ -4,9 +4,7 @@
         <resources>
             <resource id="Magento_Backend::admin">
                 <resource id="Magento_Catalog::catalog">
-                    <resource id="Magento_Catalog::inventory">
-                        <resource id="Sga_Merchandiser::merchandiser" title="Merchandiser" translate="title" sortOrder="100" />
-                    </resource>
+                    <resource id="Sga_Merchandiser::merchandiser" title="Merchandiser" translate="title" sortOrder="100" />
                 </resource>
                 <resource id="Magento_Backend::stores">
                     <resource id="Magento_Backend::stores_settings">
