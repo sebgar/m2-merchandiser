@@ -2,14 +2,10 @@
 namespace Sga\Merchandiser\Helper;
 
 use Magento\Framework\App\Helper\AbstractHelper;
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\App\Helper\Context;
 use Magento\Store\Model\ScopeInterface;
 
 class Config extends AbstractHelper
 {
-    protected $_scopeConfig;
-
     const MAX_POSITION = 999999;
 
     const XML_PATH_MERCHANDISER_NB_COLUMN_DEFAULT = 'merchandiser/general/nb_column_default';
@@ -23,18 +19,9 @@ class Config extends AbstractHelper
 
     const XML_PATH_MERCHANDISER_SALES_STATUSES = 'merchandiser/sales/statuses';
 
-    public function __construct(
-        ScopeConfigInterface $scopeConfig,
-        Context $context
-    ){
-        $this->_scopeConfig = $scopeConfig;
-
-        parent::__construct($context);
-    }
-
     public function getNbColumnDefault($store = null)
     {
-        return $this->_scopeConfig->getValue(
+        return $this->scopeConfig->getValue(
             self::XML_PATH_MERCHANDISER_NB_COLUMN_DEFAULT,
             ScopeInterface::SCOPE_STORE,
             $store
@@ -43,7 +30,7 @@ class Config extends AbstractHelper
 
     public function isDisplayOutOfStock($store = null)
     {
-        return $this->_scopeConfig->isSetFlag(
+        return $this->scopeConfig->isSetFlag(
             self::XML_PATH_MERCHANDISER_PRODUCTS_FILTERS_OUT_OF_STOCK,
             ScopeInterface::SCOPE_STORE,
             $store
@@ -52,7 +39,7 @@ class Config extends AbstractHelper
 
     public function isDisplayDisabled($store = null)
     {
-        return $this->_scopeConfig->isSetFlag(
+        return $this->scopeConfig->isSetFlag(
             self::XML_PATH_MERCHANDISER_PRODUCTS_FILTERS_DISABLED,
             ScopeInterface::SCOPE_STORE,
             $store
@@ -61,7 +48,7 @@ class Config extends AbstractHelper
 
     public function isDisplayNotVisible($store = null)
     {
-        return $this->_scopeConfig->isSetFlag(
+        return $this->scopeConfig->isSetFlag(
             self::XML_PATH_MERCHANDISER_PRODUCTS_FILTERS_NOT_VISIBLE,
             ScopeInterface::SCOPE_STORE,
             $store
@@ -70,7 +57,7 @@ class Config extends AbstractHelper
 
     public function getThresholdsColorQty($store = null)
     {
-        $value = $this->_scopeConfig->getValue(
+        $value = $this->scopeConfig->getValue(
             self::XML_PATH_MERCHANDISER_THRESHOLD_COLOR_QUANTITY,
             ScopeInterface::SCOPE_STORE,
             $store
@@ -96,7 +83,7 @@ class Config extends AbstractHelper
 
     public function getThresholdsColorOutOfStock($store = null)
     {
-        $value = $this->_scopeConfig->getValue(
+        $value = $this->scopeConfig->getValue(
             self::XML_PATH_MERCHANDISER_THRESHOLD_COLOR_OUT_OF_STOCK,
             ScopeInterface::SCOPE_STORE,
             $store
@@ -122,7 +109,7 @@ class Config extends AbstractHelper
 
     public function getSalesStatuses($store = null)
     {
-        $value = (string)$this->_scopeConfig->getValue(
+        $value = (string)$this->scopeConfig->getValue(
             self::XML_PATH_MERCHANDISER_SALES_STATUSES,
             ScopeInterface::SCOPE_STORE,
             $store
