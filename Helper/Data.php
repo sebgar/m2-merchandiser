@@ -23,6 +23,8 @@ class Data extends AbstractHelper
             ->getProductCollection()
             ->addOrder('position', 'ASC');
 
+        $collection->getSelect()->group('e.entity_id');
+
         $productsIds = array();
         foreach ($collection as $item) {
             $productsIds[] = $item->getId();
