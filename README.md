@@ -1,13 +1,8 @@
 # m2-merchandiser
 
 Merchandiser Produit
-- drag and drop
-- tri de produit par règles
-  - Standard
-  - Best sales
-  - Top/Low Stock
-  - Discount First
-  - By sub categories  
+
+[documentation](doc/doc.md)
 
 ## Installation
 
