@@ -32,23 +32,6 @@ class Indexer extends AbstractDb
                 $this->copyMerchandiserPosition($store->getId(), $categoryId, $productId);
             }
         } else {
-            // mark all entry with position Sga_Merchandiser_Model_Config::MAX_POSITION
-            $wheres = array(
-                'store_id='.(int)$storeId,
-            );
-            if ($categoryId !== null) {
-                $wheres[] = 'category_id='.(int)$categoryId;
-            }
-            if ($productId !== null) {
-                $wheres[] = 'product_id='.(int)$productId;
-            }
-            $data = array(
-                'position' => \Sga\Merchandiser\Helper\Config::MAX_POSITION
-            );
-            $this->getConnection()->update($this->getTable('catalog_category_product_index'), $data, implode(' AND ', $wheres));
-            $this->getConnection()->update($this->getTable('catalog_category_product_index').'_store'.$storeId, $data, implode(' AND ', $wheres));
-
-            // update with merchandiser position
             $select->reset()
                 ->from(
                     array('global' => $this->getTable('sga_merchandiser_position')),
@@ -69,10 +52,30 @@ class Indexer extends AbstractDb
                 $select->where('global.product_id='.(int)$productId);
             }
 
-            $query = $select->insertFromSelect($this->getTable('catalog_category_product_index'), array('store_id', 'category_id', 'product_id', 'position'), true);
-            $this->getConnection()->query($query);
-            $query = $select->insertFromSelect($this->getTable('catalog_category_product_index').'_store'.$storeId, array('store_id', 'category_id', 'product_id', 'position'), true);
-            $this->getConnection()->query($query);
+            // if there is entry in merchandiser
+            if ($select->query()->rowCount() > 0) {
+                // mark all entry with position Sga_Merchandiser_Model_Config::MAX_POSITION
+                $wheres = array(
+                    'store_id='.(int)$storeId,
+                );
+                if ($categoryId !== null) {
+                    $wheres[] = 'category_id='.(int)$categoryId;
+                }
+                if ($productId !== null) {
+                    $wheres[] = 'product_id='.(int)$productId;
+                }
+                $data = array(
+                    'position' => \Sga\Merchandiser\Helper\Config::MAX_POSITION
+                );
+                $this->getConnection()->update($this->getTable('catalog_category_product_index'), $data, implode(' AND ', $wheres));
+                $this->getConnection()->update($this->getTable('catalog_category_product_index').'_store'.$storeId, $data, implode(' AND ', $wheres));
+
+                // update with merchandiser position
+                $query = $select->insertFromSelect($this->getTable('catalog_category_product_index'), array('store_id', 'category_id', 'product_id', 'position'), true);
+                $this->getConnection()->query($query);
+                $query = $select->insertFromSelect($this->getTable('catalog_category_product_index').'_store'.$storeId, array('store_id', 'category_id', 'product_id', 'position'), true);
+                $this->getConnection()->query($query);
+            }
         }
     }
 }
