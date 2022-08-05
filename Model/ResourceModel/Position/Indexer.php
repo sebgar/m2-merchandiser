@@ -6,13 +6,16 @@ use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
 class Indexer extends AbstractDb
 {
     protected $_storeManager;
+    protected $_indexerState;
 
     public function __construct(
         \Magento\Framework\Model\ResourceModel\Db\Context $context,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
+        \Magento\Indexer\Model\Indexer\State $indexerState,
         $connectionName = null
     ) {
         $this->_storeManager = $storeManager;
+        $this->_indexerState = $indexerState;
 
         parent::__construct($context, $connectionName);
     }
@@ -77,5 +80,13 @@ class Indexer extends AbstractDb
                 $this->getConnection()->query($query);
             }
         }
+
+        $this->_indexerState->loadByIndexer(\Magento\Catalog\Model\Indexer\Category\Product::INDEXER_ID);
+        $this->_indexerState->setStatus(\Magento\Framework\Indexer\StateInterface::STATUS_INVALID);
+        $this->_indexerState->save();
+
+        $this->_indexerState->loadByIndexer(\Magento\CatalogSearch\Model\Indexer\Fulltext::INDEXER_ID);
+        $this->_indexerState->setStatus(\Magento\Framework\Indexer\StateInterface::STATUS_INVALID);
+        $this->_indexerState->save();
     }
 }
