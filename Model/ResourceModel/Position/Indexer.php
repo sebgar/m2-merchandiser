@@ -82,11 +82,15 @@ class Indexer extends AbstractDb
         }
 
         $this->_indexerState->loadByIndexer(\Magento\Catalog\Model\Indexer\Category\Product::INDEXER_ID);
-        $this->_indexerState->setStatus(\Magento\Framework\Indexer\StateInterface::STATUS_INVALID);
-        $this->_indexerState->save();
+        if ($this->_indexerState->getStatus() !== \Magento\Framework\Indexer\StateInterface::STATUS_WORKING) {
+            $this->_indexerState->setStatus(\Magento\Framework\Indexer\StateInterface::STATUS_INVALID);
+            $this->_indexerState->save();
+        }
 
         $this->_indexerState->loadByIndexer(\Magento\CatalogSearch\Model\Indexer\Fulltext::INDEXER_ID);
-        $this->_indexerState->setStatus(\Magento\Framework\Indexer\StateInterface::STATUS_INVALID);
-        $this->_indexerState->save();
+        if ($this->_indexerState->getStatus() !== \Magento\Framework\Indexer\StateInterface::STATUS_WORKING) {
+            $this->_indexerState->setStatus(\Magento\Framework\Indexer\StateInterface::STATUS_INVALID);
+            $this->_indexerState->save();
+        }
     }
 }
