@@ -52,39 +52,13 @@ define([
             // store change
             $(this.options.elements.store_switcher).on('change', function(event){
                 var val = $(event.currentTarget).val();
-                var url = window.location.href;
-                var regex = /\/store\/[0-9]+\//g;
-                if (url.match(regex)) {
-                    if (val !== '') {
-                        url = url.replace(regex, '/store/'+val+'/');
-                    } else {
-                        url = url.replace(regex, '/');
-                    }
-                } else {
-                    if (val !== '') {
-                        url = url + 'store/' + val + '/';
-                    }
-                }
-
-                window.location.href = url;
+                window.location.href = this.changeUrlParameter('store', val);
             }.bind(this));
 
             // category change
             $(this.options.elements.category_switcher).on('change', function(event){
                 var val = $(event.currentTarget).val();
-                var url = window.location.href;
-                var regex = /\/category\/[0-9]+\//g;
-                if (url.match(regex)) {
-                    if (val !== '') {
-                        url = url.replace(regex, '/category/' + val + '/');
-                    } else {
-                        url = url.replace(regex, '/');
-                    }
-                } else {
-                    if (val !== '') {
-                        url = url + 'category/' + val + '/';
-                    }
-                }
+                var url = this.changeUrlParameter('category', val);
 
                 window.history.pushState('html', 'title', url);
 
@@ -164,99 +138,99 @@ define([
                             p: this.currentPage
                         }
                     })
-                    .fail(function(response) {
-                        this.inLoad = false;
-                    }.bind(this))
-                    .done(function(response) {
-                        $('body').loader('hide');
+                        .fail(function(response) {
+                            this.inLoad = false;
+                        }.bind(this))
+                        .done(function(response) {
+                            $('body').loader('hide');
 
-                        if (response.error) {
-                            modalAlert({
-                                title: 'Error',
-                                content: response.error,
-                                actions: {
-                                    always: function(){}
-                                }
-                            });
-                        }  else {
-                            if (this.currentPage * this.options.max_products >= response.total) {
-                                this.allLoaded = true;
-                            }
-
-                            // update total
-                            $(this.options.elements.count).find('span').html(response.total);
-
-                            // update container
-                            var container = $(this.options.elements.products);
-                            container.html(container.html()+response.html);
-
-                            // show elements
-                            $(this.options.elements.elements).show();
-
-                            // show actions
-                            $(this.options.elements.actions).show();
-                            if (this.saveOffsetActions === 0) {
-                                this.saveOffsetActions = $('.actions').offset()['top'];
-                            }
-
-                            // disabled btn save
-                            if (this.needSave) {
-                                $(this.options.elements.btn_save).addClass('disabled');
-                            }
-
-                            container.off('click', '.product-middle').on('click', '.product-middle', function () {
-                                $(this).parents('li').toggleClass('selected');
-                            });
-
-                            // make list sortable
-                            container.sortable({
-                                delay: 150,
-                                cancel: ".product-top, .product-bottom",
-                                update: function(event, ui) {
-                                    this.flagNeedSave(true);
-                                }.bind(this),
-                                helper: function (e, item) {
-                                    //Basically, if you grab an unhighlighted item to drag, it will deselect (unhighlight) everything else
-                                    if (!item.hasClass('selected')) {
-                                        item.addClass('selected').siblings().removeClass('selected');
+                            if (response.error) {
+                                modalAlert({
+                                    title: 'Error',
+                                    content: response.error,
+                                    actions: {
+                                        always: function(){}
                                     }
+                                });
+                            }  else {
+                                if (this.currentPage * this.options.max_products >= response.total) {
+                                    this.allLoaded = true;
+                                }
 
-                                    //////////////////////////////////////////////////////////////////////
-                                    //HERE'S HOW TO PASS THE SELECTED ITEMS TO THE `stop()` FUNCTION:
+                                // update total
+                                $(this.options.elements.count).find('span').html(response.total);
 
-                                    //Clone the selected items into an array
-                                    var elements = item.parent().children('.selected').clone();
+                                // update container
+                                var container = $(this.options.elements.products);
+                                container.html(container.html()+response.html);
 
-                                    //Add a property to `item` called 'multidrag` that contains the
-                                    //  selected items, then remove the selected items from the source list
-                                    item.data('multidrag', elements).siblings('.selected').remove();
+                                // show elements
+                                $(this.options.elements.elements).show();
 
-                                    //Now the selected items exist in memory, attached to the `item`,
-                                    //  so we can access them later when we get to the `stop()` callback
+                                // show actions
+                                $(this.options.elements.actions).show();
+                                if (this.saveOffsetActions === 0) {
+                                    this.saveOffsetActions = $('.actions').offset()['top'];
+                                }
 
-                                    //Create the helper
-                                    var helper = $('<li/>');
-                                    return helper.append(elements);
-                                },
-                                stop: function (e, ui) {
-                                    //Now we access those items that we stored in `item`s data!
-                                    var elements = ui.item.data('multidrag');
+                                // disabled btn save
+                                if (this.needSave) {
+                                    $(this.options.elements.btn_save).addClass('disabled');
+                                }
 
-                                    //`elements` now contains the originally selected items from the source list (the dragged items)!!
+                                container.off('click', '.product-middle').on('click', '.product-middle', function () {
+                                    $(this).parents('li').toggleClass('selected');
+                                });
 
-                                    //Finally I insert the selected items after the `item`, then remove the `item`, since
-                                    //  item is a duplicate of one of the selected items.
-                                    ui.item.after(elements).remove();
+                                // make list sortable
+                                container.sortable({
+                                    delay: 150,
+                                    cancel: ".product-top, .product-bottom",
+                                    update: function(event, ui) {
+                                        this.flagNeedSave(true);
+                                    }.bind(this),
+                                    helper: function (e, item) {
+                                        //Basically, if you grab an unhighlighted item to drag, it will deselect (unhighlight) everything else
+                                        if (!item.hasClass('selected')) {
+                                            item.addClass('selected').siblings().removeClass('selected');
+                                        }
 
-                                    this.bindEventsProduct();
-                                }.bind(this)
-                            });
+                                        //////////////////////////////////////////////////////////////////////
+                                        //HERE'S HOW TO PASS THE SELECTED ITEMS TO THE `stop()` FUNCTION:
 
-                            this.bindEventsProduct();
-                        }
+                                        //Clone the selected items into an array
+                                        var elements = item.parent().children('.selected').clone();
 
-                        this.inLoad = false;
-                    }.bind(this));
+                                        //Add a property to `item` called 'multidrag` that contains the
+                                        //  selected items, then remove the selected items from the source list
+                                        item.data('multidrag', elements).siblings('.selected').remove();
+
+                                        //Now the selected items exist in memory, attached to the `item`,
+                                        //  so we can access them later when we get to the `stop()` callback
+
+                                        //Create the helper
+                                        var helper = $('<li/>');
+                                        return helper.append(elements);
+                                    },
+                                    stop: function (e, ui) {
+                                        //Now we access those items that we stored in `item`s data!
+                                        var elements = ui.item.data('multidrag');
+
+                                        //`elements` now contains the originally selected items from the source list (the dragged items)!!
+
+                                        //Finally I insert the selected items after the `item`, then remove the `item`, since
+                                        //  item is a duplicate of one of the selected items.
+                                        ui.item.after(elements).remove();
+
+                                        this.bindEventsProduct();
+                                    }.bind(this)
+                                });
+
+                                this.bindEventsProduct();
+                            }
+
+                            this.inLoad = false;
+                        }.bind(this));
                 }
             }
         },
@@ -300,22 +274,22 @@ define([
                         positions: positions.join(',')
                     }
                 })
-                .done(function(response) {
-                    $('body').loader('hide');
+                    .done(function(response) {
+                        $('body').loader('hide');
 
-                    if (response.message) {
-                        this.flagNeedSave(false);
-                        this.checkOverload();
+                        if (response.message) {
+                            this.flagNeedSave(false);
+                            this.checkOverload();
 
-                        modalAlert({
-                            title: '',
-                            content: response.message,
-                            actions: {
-                                always: function(){}
-                            }
-                        });
-                    }
-                }.bind(this));
+                            modalAlert({
+                                title: '',
+                                content: response.message,
+                                actions: {
+                                    always: function(){}
+                                }
+                            });
+                        }
+                    }.bind(this));
             }
         },
 
@@ -332,27 +306,27 @@ define([
                         category: $(this.options.elements.category_switcher).val()
                     }
                 })
-                .done(function(response) {
-                    $('body').loader('hide');
+                    .done(function(response) {
+                        $('body').loader('hide');
 
-                    if (response.message) {
-                        modalAlert({
-                            title: 'Error',
-                            content: response.message,
-                            actions: {
-                                always: function(){}
+                        if (response.message) {
+                            modalAlert({
+                                title: 'Error',
+                                content: response.message,
+                                actions: {
+                                    always: function(){}
+                                }
+                            });
+                        }  else {
+                            if (response.overload === 1) {
+                                $(this.options.elements.btn_remove_overload).removeClass('disabled');
+                                $(this.options.elements.btn_apply_to_global).removeClass('disabled');
+                            } else {
+                                $(this.options.elements.btn_remove_overload).addClass('disabled');
+                                $(this.options.elements.btn_apply_to_global).addClass('disabled');
                             }
-                        });
-                    }  else {
-                        if (response.overload === 1) {
-                            $(this.options.elements.btn_remove_overload).removeClass('disabled');
-                            $(this.options.elements.btn_apply_to_global).removeClass('disabled');
-                        } else {
-                            $(this.options.elements.btn_remove_overload).addClass('disabled');
-                            $(this.options.elements.btn_apply_to_global).addClass('disabled');
                         }
-                    }
-                }.bind(this));
+                    }.bind(this));
             }
         },
 
@@ -374,23 +348,23 @@ define([
                                     category: $(this.options.elements.category_switcher).val()
                                 }
                             })
-                            .done(function(response) {
-                                $('body').loader('hide');
+                                .done(function(response) {
+                                    $('body').loader('hide');
 
-                                if (response.message) {
-                                    modalAlert({
-                                        title: 'Error',
-                                        content: response.message,
-                                        actions: {
-                                            always: function(){}
-                                        }
-                                    });
-                                }  else {
-                                    this.checkOverload();
+                                    if (response.message) {
+                                        modalAlert({
+                                            title: 'Error',
+                                            content: response.message,
+                                            actions: {
+                                                always: function(){}
+                                            }
+                                        });
+                                    }  else {
+                                        this.checkOverload();
 
-                                    this.loadProducts(true);
-                                }
-                            }.bind(this));
+                                        this.loadProducts(true);
+                                    }
+                                }.bind(this));
                         }.bind(this)
                     }
                 });
@@ -428,19 +402,19 @@ define([
                                     category: $(this.options.elements.category_switcher).val()
                                 }
                             })
-                            .done(function(response) {
-                                $('body').loader('hide');
+                                .done(function(response) {
+                                    $('body').loader('hide');
 
-                                if (response.message) {
-                                    modalAlert({
-                                        title: '',
-                                        content: response.message,
-                                        actions: {
-                                            always: function(){}
-                                        }
-                                    });
-                                }
-                            }.bind(this));
+                                    if (response.message) {
+                                        modalAlert({
+                                            title: '',
+                                            content: response.message,
+                                            actions: {
+                                                always: function(){}
+                                            }
+                                        });
+                                    }
+                                }.bind(this));
                         }.bind(this)
                     }
                 });
@@ -460,21 +434,21 @@ define([
                         skus: $(this.options.elements.input_add_skus).val()
                     }
                 })
-                .done(function(response) {
-                    $('body').loader('hide');
+                    .done(function(response) {
+                        $('body').loader('hide');
 
-                    if (response.message) {
-                        modalAlert({
-                            title: 'Error',
-                            content: response.message,
-                            actions: {
-                                always: function(){}
-                            }
-                        });
-                    } else {
-                        this.loadProducts(true);
-                    }
-                }.bind(this));
+                        if (response.message) {
+                            modalAlert({
+                                title: 'Error',
+                                content: response.message,
+                                actions: {
+                                    always: function(){}
+                                }
+                            });
+                        } else {
+                            this.loadProducts(true);
+                        }
+                    }.bind(this));
             } else {
                 modalAlert({
                     title: 'Warning',
@@ -503,22 +477,22 @@ define([
                                 product: productId
                             }
                         })
-                        .done(function(response) {
-                            $('body').loader('hide');
+                            .done(function(response) {
+                                $('body').loader('hide');
 
-                            if (response.message) {
-                                modalAlert({
-                                    title: 'Error',
-                                    content: response.message,
-                                    actions: {
-                                        always: function(){}
-                                    }
-                                });
-                            } else {
-                                // remove item
-                                $(this.options.elements.products+' li[data-id='+productId+']').remove();
-                            }
-                        }.bind(this));
+                                if (response.message) {
+                                    modalAlert({
+                                        title: 'Error',
+                                        content: response.message,
+                                        actions: {
+                                            always: function(){}
+                                        }
+                                    });
+                                } else {
+                                    // remove item
+                                    $(this.options.elements.products+' li[data-id='+productId+']').remove();
+                                }
+                            }.bind(this));
                     }.bind(this)
                 }
             });
@@ -542,21 +516,21 @@ define([
                                 sort: $(this.options.elements.input_auto_sort).val()
                             }
                         })
-                        .done(function(response) {
-                            $('body').loader('hide');
+                            .done(function(response) {
+                                $('body').loader('hide');
 
-                            if (response.message) {
-                                modalAlert({
-                                    title: '',
-                                    content: response.message,
-                                    actions: {
-                                        always: function(){}
-                                    }
-                                });
-                            } else {
-                                this.loadProducts(true);
-                            }
-                        }.bind(this));
+                                if (response.message) {
+                                    modalAlert({
+                                        title: '',
+                                        content: response.message,
+                                        actions: {
+                                            always: function(){}
+                                        }
+                                    });
+                                } else {
+                                    this.loadProducts(true);
+                                }
+                            }.bind(this));
                     }.bind(this)
                 }
             });
@@ -571,6 +545,62 @@ define([
                 $(this.options.elements.btn_save).addClass('disabled');
                 this.needSave = false;
             }
+        },
+
+        changeUrlParameter: function(code, value) {
+            var parameters = this.getUrlParameters();
+
+            var indexParameter = -1;
+            for (var i = 0; i < parameters.length; i++) {
+                if (parameters[i].code === code) {
+                    indexParameter = i;
+                }
+            }
+
+            if (value !== '') {
+                if (indexParameter > -1) {
+                    parameters[indexParameter] = {'code': code, 'value': value};
+                } else {
+                    parameters.push({'code': code, 'value': value});
+                }
+            } else {
+                if (indexParameter > -1) {
+                    parameters[indexParameter] = undefined;
+                }
+            }
+
+            return location.protocol+'//'+location.hostname+location.pathname+this.mergeUrlParameters(parameters);
+        },
+
+        getUrlParameters: function() {
+            var parameters = [];
+            var search = window.location.search;
+
+            if (search.substring(0, 1) === '?') {
+                search = search.substring(1, search.length);
+            }
+
+            var entries = search.split('&');
+            for (var i = 0; i < entries.length; i++) {
+                if (entries[i].length > 0) {
+                    var entry = entries[i].split('=');
+                    if (entry.length === 2) {
+                        parameters.push({'code': entry[0], 'value': entry[1]});
+                    }
+                }
+            }
+
+            return parameters;
+        },
+
+        mergeUrlParameters: function(parameters) {
+            var str = [];
+            for (var i = 0; i < parameters.length; i++) {
+                if (parameters[i] !== undefined) {
+                    str.push(parameters[i].code+'='+parameters[i].value);
+                }
+            }
+            return str.length > 0 ? '?'+str.join('&') : '';
         }
     });
 
