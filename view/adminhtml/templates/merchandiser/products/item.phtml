@@ -72,7 +72,7 @@ $qtyHtml = '<span style="'.$cssQty.'">'.$qty.'</span>';
     <div class="product-bottom">
         <div class="sku"><?= $product->getSku() ?></div>
         <div class="price"><?= $priceHtml ?></div>
-        <div class="sales"><?= __('Sales:').' '.round($product->getNbSales()) ?></div>
+        <div class="sales"><?= __('Sales:').' '.round((int)$product->getNbSales()) ?></div>
         <div class="stock"><?= $stockHtml ?></div>
         <div class="qty"><?= __('Qty:').' '.$qtyHtml ?></div>
     </div>
